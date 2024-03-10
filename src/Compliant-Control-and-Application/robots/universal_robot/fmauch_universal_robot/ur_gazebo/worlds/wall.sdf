@@ -1,0 +1,22 @@
+<sdf version="1.6">
+  <model name="wall">
+    <pose>0.8 0.2 0.125 0 0 1.57</pose>
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1 0.1 0.25</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>1 0.1 0.25</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

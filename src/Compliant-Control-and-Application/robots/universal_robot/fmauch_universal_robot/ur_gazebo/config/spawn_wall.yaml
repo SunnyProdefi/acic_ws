@@ -1,0 +1,28 @@
+model_name: 'wall'  # 模型名称: 'wall'，这里定义了模型的名称，用于在Gazebo中识别模型。
+model_xml: |  # 模型的XML定义开始
+  <sdf version="1.6">  # SDF文件的版本号，这里使用的是1.6版本。
+    <model name="wall">  # 定义了一个模型，名称为“wall”。
+      <pose>0.3 0.0 0.0 0 0 0</pose>  # 模型的初始位置和朝向，格式为x y z roll pitch yaw。
+      <static>true</static>  # 模型是否为静态，静态模型不会受物理引擎的影响。
+      <link name="link">  # 定义了一个链接，这是模型的一个组成部分。
+        <collision name="collision">  # 碰撞检测配置，定义了物体的物理边界。
+          <geometry>  # 几何形状的定义。
+            <box>  # 使用盒子作为几何形状。
+              <size>0.1 1 1.5</size>  # 盒子的尺寸，格式为长度 宽度 高度。
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">  # 可视化配置，定义了物体的外观。
+          <geometry>  # 几何形状的定义。
+            <box>  # 使用盒子作为几何形状。
+              <size>0.1 1 1.5</size>  # 盒子的尺寸，与碰撞配置中的尺寸相同。
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+  </sdf>
+robot_namespace: '/gazebo'  # ROS命名空间，这里指定了Gazebo命名空间。
+initial_pose:  # 定义了模型的初始姿态。
+  position: {x: 0.3, y: 0, z: 0}  # 初始位置，格式为x y z。
+  orientation: {x: 0, y: 0, z: 0, w: 1}  # 初始方向，格式为四元数x y z w。

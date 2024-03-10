@@ -17,6 +17,7 @@
   <arg name="kinematics_params" default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
   <arg name="physical_params" default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
   <arg name="visual_params" default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+  <rosparam file="$(find ur_gazebo)/config/ur5_joint_positions.yaml" command="load"/>
   <!-- 1. PositionJointInterface 2. EffortJointInterface -->
   <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
   <arg name="environment" default="empty" doc="指定虚拟环境"/>

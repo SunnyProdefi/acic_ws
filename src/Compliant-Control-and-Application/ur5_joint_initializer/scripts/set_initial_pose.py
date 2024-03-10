@@ -19,7 +19,7 @@ def set_initial_pose():
     
     # 创建一个轨迹点
     point = JointTrajectoryPoint()
-    point.positions = [0.0, -1.57, 0.0, 0.0, 0.0, 0.0]  # 目标位置
+    point.positions = [0, -1.57, 1.57, 0.0, 0.0, 0.0]  # 目标位置
     point.time_from_start = rospy.Duration(1)  # 从开始到达目标位置的时间
     trajectory.points.append(point)
 
