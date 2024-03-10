@@ -8,6 +8,7 @@
 #ifndef CARTESIAN_VELOCITY_CONTROLLER_H
 #define CARTESIAN_VELOCITY_CONTROLLER_H
 
+// 引入所需的头文件
 #include <ros/node_handle.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
@@ -19,14 +20,12 @@
 #include <kdl/chainfksolvervel_recursive.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <realtime_tools/realtime_publisher.h>
-#include "kinematics_base.h"
+#include "kinematics_base.h" // 包括运动学基础类的定义
 
 namespace cartesian_velocity_controller
 {
 
-/** \brief This class implements a ROS control cartesian velocity
- * controller. Its base class implements the core
- * of the controller.
+/** \brief 这个类实现了一个ROS控制的笛卡尔速度控制器。它的基类实现了控制器的核心。
  */
 class Cartesian_Velocity_Controller: public kinematics_base::Kinematics_Base
 {
@@ -34,63 +33,54 @@ public:
   Cartesian_Velocity_Controller() {}
   ~Cartesian_Velocity_Controller() {}
 
-  /** \brief The init function is called to initialize the controller from a
-   * non-realtime thread with a pointer to the hardware interface, itself,
-   * instead of a pointer to a RobotHW.
-   *s
-   * \param robot The specific hardware interface used by this controller.
-   *
-   * \param n A NodeHandle in the namespace from which the controller
-   * should read its configuration, and where it should set up its ROS
-   * interface.
-   *
-   * \returns True if initialization was successful and the controller
-   * is ready to be started.
+  /** \brief init函数用于从非实时线程初始化控制器，并传入硬件接口的指针。
+   * \param robot 该控制器使用的特定硬件接口。
+   * \param n 一个NodeHandle，控制器应从其命名空间读取配置，并在其中设置其ROS接口。
+   * \returns 如果初始化成功并且控制器准备好启动，则返回True。
    */
   bool init(hardware_interface::PositionJointInterface *robot, ros::NodeHandle &n);
 
-  /** \brief This is called from within the realtime thread just before the
-   * first call to \ref update
-   *
-   * \param time The current time
+  /** \brief 在第一次调用update之前，从实时线程调用这个函数。
+   * \param time 当前时间
    */
   void starting(const ros::Time& time);
 
   /*!
-   * \brief Issues commands to the joint. Called at regular intervals
+   * \brief 向关节发送命令。定期调用此函数。
    */
   void update(const ros::Time& time, const ros::Duration& period);
 
   /*!
-   * \brief Subscriber's callback function
+   * \brief 订阅者的回调函数。
    */
   void command_cart_vel(const geometry_msgs::TwistConstPtr &msg);
 private:
-  /** \brief Write current commands to the hardware interface
+  /** \brief 将当前命令写入硬件接口。
    */
   void writeVelocityCommands(const ros::Duration& period);
 
 protected:
-  ros::Subscriber                 sub_command_; // Interface to external commands
+  ros::Subscriber                 sub_command_; // 接收外部命令的接口
 
-  ros::Time                       last_publish_time_;
-  double                          publish_rate_;
+  ros::Time                       last_publish_time_; // 上次发布时间
+  double                          publish_rate_; // 发布率
 
-  KDL::JntArray                   Jnt_Vel_Cmd_;      // Desired joint velocity
-  KDL::Twist                      End_Vel_Cmd_;      // Desired end-effector velocity
-  KDL::FrameVel                   End_Vel_;
-  KDL::Frame                      End_Pos_;
-  cartesian_state_msgs::PoseTwist msg_state_;
+  KDL::JntArray                   Jnt_Vel_Cmd_;      // 期望的关节速度
+  KDL::Twist                      End_Vel_Cmd_;      // 期望的末端执行器速度
+  KDL::FrameVel                   End_Vel_; // 末端速度
+  KDL::Frame                      End_Pos_; // 末端位置
+  cartesian_state_msgs::PoseTwist msg_state_; // 状态消息
 
 
-  boost::shared_ptr<KDL::ChainFkSolverVel> fk_vel_solver_;
-  boost::shared_ptr<KDL::ChainFkSolverPos> fk_pos_solver_;
-  boost::shared_ptr<KDL::ChainIkSolverVel> ik_vel_solver_;
+  boost::shared_ptr<KDL::ChainFkSolverVel> fk_vel_solver_; // 正向速度解算器
+  boost::shared_ptr<KDL::ChainFkSolverPos> fk_pos_solver_; // 正向位置解算器
+  boost::shared_ptr<KDL::ChainIkSolverVel> ik_vel_solver_; // 逆向速度解算器
 
   boost::shared_ptr<realtime_tools::RealtimePublisher<
-     cartesian_state_msgs::PoseTwist> > realtime_pub_;
+     cartesian_state_msgs::PoseTwist> > realtime_pub_; // 实时发布器
 };
 } // namespace controller_interface
 
 
 #endif
+

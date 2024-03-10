@@ -1,7 +1,14 @@
 <library path="lib/libcartesian_velocity_controller">
+  <!-- 插件库路径，定义了库的位置 -->
   <class name="cartesian_controller/CartesianVelocityController" type="cartesian_velocity_controller::Cartesian_Velocity_Controller" base_class_type="controller_interface::ControllerBase">
+    <!-- 定义了一个控制器类 -->
+    <!-- name: 控制器的名称，用于ROS中的引用 -->
+    <!-- type: 控制器实现的C++类的名称 -->
+    <!-- base_class_type: 指明了这个控制器继承自controller_interface::ControllerBase，这是所有控制器必须继承的基类 -->
     <description>
         Cartesian velocity control
+        <!-- 描述：简短描述了这个控制器的功能，即笛卡尔速度控制 -->
     </description>
   </class>
 </library>
+

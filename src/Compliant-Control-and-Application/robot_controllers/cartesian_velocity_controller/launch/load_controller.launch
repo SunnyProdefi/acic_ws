@@ -1,13 +1,27 @@
-<?xml version="1.0"?>
+<?xml version="1.0"?> 
 <launch>
-	<!-- Controller for the real robot -->
-	<arg name="controller" default="cartesian_velocity_controller" doc="Controller to be loaded" />
-	<!-- Controller for gazebo simulations -->
-	<!-- <arg name="controller" default="cartesian_velocity_controller_sim" doc="Controller to be loaded" /> --> 
+    <!-- Controller for the real robot -->
+    <!-- 实体机器人使用的控制器 -->
+    <arg name="controller" default="cartesian_velocity_controller" doc="Controller to be loaded" />
+    <!-- 控制器参数定义，其默认值为"cartesian_velocity_controller"，此参数用于加载控制器 -->
 
-	<!-- Load joint controller configurations from YAML file to parameter server -->
-	<rosparam file="$(find ur5_cartesian_velocity_control)/config/controllers.yaml" command="load"/>
-	
-	<node ns="ur5" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="$(arg controller)"/> 
-	
+    <!-- Controller for gazebo simulations -->
+    <!-- 用于Gazebo仿真的控制器 -->
+    <!-- <arg name="controller" default="cartesian_velocity_controller_sim" doc="Controller to be loaded" /> -->
+    <!-- 此行被注释掉，若要在Gazebo仿真中使用，可取消注释并将上一行注释掉，参数定义默认值为"cartesian_velocity_controller_sim" -->
+
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <!-- 从YAML文件加载关节控制器配置到参数服务器 -->
+    <rosparam file="$(find ur5_cartesian_velocity_control)/config/controllers.yaml" command="load"/>
+    <!-- 使用rosparam标签加载配置文件，该文件指定了控制器的配置，位于ur5_cartesian_velocity_control包的config目录下 -->
+
+    <node ns="ur5" name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="$(arg controller)"/>
+    <!-- 启动一个节点来加载并启动控制器，使用controller_manager包的spawner类型
+         - ns="ur5": 将此节点放在名为ur5的命名空间下
+         - name="controller_spawner": 节点的名称为controller_spawner
+         - pkg="controller_manager": 节点使用的包是controller_manager
+         - type="spawner": 节点类型为spawner，用于启动和停止控制器
+         - respawn="false": 若节点终止不会自动重启
+         - output="screen": 节点的输出显示在屏幕上
+         - args="$(arg controller)": 启动参数为controller参数的值，根据上面定义的arg选择相应的控制器 -->
 </launch>

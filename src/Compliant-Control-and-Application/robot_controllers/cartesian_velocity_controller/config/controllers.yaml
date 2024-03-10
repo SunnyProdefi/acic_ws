@@ -1,5 +1,6 @@
 cartesian_velocity_controller_sim:
-  type: cartesian_controller/CartesianVelocityControllerSim
-  publish_rate: 125
-  root_name: base_link
-  tip_name: ee_link
+  # 控制器的名称，用于ROS中的唯一标识
+  type: cartesian_controller/CartesianVelocityControllerSim # 控制器的类型，指定了使用的控制器插件
+  publish_rate: 125                                        # 发布速率，单位是Hz（次/秒），指这个控制器将以每秒125次的频率发布控制命令
+  root_name: base_link                                     # 根链名称，通常指机器人的基座链接
+  tip_name: ee_link                                        # 末端执行器链接的名称，是控制器控制动作的目标部分
