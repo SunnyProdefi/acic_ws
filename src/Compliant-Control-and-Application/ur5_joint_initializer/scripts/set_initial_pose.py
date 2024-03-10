@@ -1,24 +1,30 @@
 #!/usr/bin/env python
 import rospy
-from sensor_msgs.msg import JointState
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 def set_initial_pose():
     rospy.init_node('ur5_joint_initializer', anonymous=True)
-    pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
+    # 假设控制器的命令话题是'/pos_joint_traj_controller/command'
+    pub = rospy.Publisher('/pos_joint_traj_controller/command', JointTrajectory, queue_size=10)
 
     # 等待连接
     while pub.get_num_connections() == 0:
         rospy.sleep(1)
 
-    initial_state = JointState()
-    initial_state.name = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
-                          'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-    initial_state.position = [0.0, -1.57, 0.0, 0.0, 0.0, 0.0]  # 小臂抬起90度
-    initial_state.velocity = [0.0] * 6
-    initial_state.effort = [0.0] * 6
+    # 构造JointTrajectory消息
+    trajectory = JointTrajectory()
+    trajectory.header.stamp = rospy.Time.now()
+    trajectory.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
+                              'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+    
+    # 创建一个轨迹点
+    point = JointTrajectoryPoint()
+    point.positions = [0.0, -1.57, 0.0, 0.0, 0.0, 0.0]  # 目标位置
+    point.time_from_start = rospy.Duration(1)  # 从开始到达目标位置的时间
+    trajectory.points.append(point)
 
-    rospy.loginfo("Setting UR5 initial pose...")
-    pub.publish(initial_state)
+    rospy.loginfo("Setting UR5 initial pose using JointTrajectoryController...")
+    pub.publish(trajectory)
     rospy.sleep(1)  # 确保消息被发送
 
 if __name__ == '__main__':
