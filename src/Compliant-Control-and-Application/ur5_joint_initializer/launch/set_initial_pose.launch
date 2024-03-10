@@ -1,0 +1,3 @@
+<launch>
+    <node name="ur5_joint_initializer" pkg="ur5_joint_initializer" type="set_initial_pose.py" output="screen" />
+</launch>
