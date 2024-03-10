@@ -11,8 +11,8 @@
 #include <kdl/chainiksolverpos_nr.hpp>
 #include <realtime_tools/realtime_publisher.h>
 #include "KDL_Base.h"
-#include <kdl/chainidsolver_recursive_newton_euler.hpp>//Inverse Dynamics
-#include <kdl/chaindynparam.hpp>                        //Inverse Dynamics Params
+#include <kdl/chainidsolver_recursive_newton_euler.hpp>  // 逆动力学
+#include <kdl/chaindynparam.hpp>                        // 逆动力学参数
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
@@ -27,7 +27,8 @@
 #include "geometry_msgs/Wrench.h"
 #include "std_msgs/Float64MultiArray.h"
 
-typedef Eigen::Matrix<double, 6, 6> Matrix6d;
+typedef Eigen::Matrix<double, 6, 6> Matrix6d;  // 定义一个6x6的double型矩阵
+
 class Impedance: public kdl_base::KDL_Base
 {
 public:
@@ -62,19 +63,19 @@ private:
     void send_commands_to_robot();
 
 protected:
-    ros::NodeHandle                 nh_;
+    ros::NodeHandle                 nh_;  // ROS节点句柄
     // Subscribers:
-    ros::Subscriber                 sub_command_; // Interface to external commands
-    ros::Subscriber                 sub_arm_state_;
-    ros::Subscriber                 sub_wrench_state_;
-    ros::Subscriber                 sub_posture_;
+    ros::Subscriber                 sub_command_; // 外部命令接口
+    ros::Subscriber                 sub_arm_state_;  // 机械臂状态订阅器
+    ros::Subscriber                 sub_wrench_state_;  // 扭矩状态订阅器
+    ros::Subscriber                 sub_posture_;  // 姿态订阅器
     // Publishers:
-    ros::Publisher                  pub_arm_cmd_;
+    ros::Publisher                  pub_arm_cmd_;  // 发布器：机械臂命令
 
     ros::Time                       last_publish_time_;
     double                          publish_rate_;
 
-    // KDL Varaibales:
+    // KDL Variables:
     KDL::JntArray                   Jnt_Pos_Init_State;
     KDL::JntArrayAcc                Jnt_Desired_State;
     KDL::JntArray                   CMD_State;
@@ -85,7 +86,6 @@ protected:
     KDL::JntArray                   Jnt_Vel_State;
     KDL::JntArray                   Jnt_Toq_State;
 
-
     KDL::Wrenches                   Ext_Wrenches;
 
     KDL::Rotation                   Desired_Ori_;
@@ -94,7 +94,7 @@ protected:
 
     KDL::Vector                     Gravity;
 
-    KDL::JntSpaceInertiaMatrix      M_; //Inertia Matrix
+    KDL::JntSpaceInertiaMatrix      M_; // 惯性矩阵
     KDL::JntArray                   C_, G_;
     KDL::JntArray                   Kp_, Kv_, Ka_;
 
@@ -123,6 +123,5 @@ protected:
     double                  pos_y;
     double                  pos_z;
 };
-
 
 #endif

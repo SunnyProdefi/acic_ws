@@ -3,18 +3,30 @@
   <!--
       Launch file for the admittance controller
   -->
+  <!-- 为阻抗控制器启动文件 -->
 
   <arg name="TOPIC_ARM_STATE" default="/joint_torque_controller/joint_state"/>
-  <arg name="TOPIC_ARM_COMMAND" default="/joint_torque_controller/command_joint_torque"/>
-  <arg name="TOPIC_WRENCH_STATE" default="/wrench_fake"/>
+  <!-- 定义参数TOPIC_ARM_STATE，默认值为"/joint_torque_controller/joint_state"，这是关节状态的话题 -->
 
+  <arg name="TOPIC_ARM_COMMAND" default="/joint_torque_controller/command_joint_torque"/>
+  <!-- 定义参数TOPIC_ARM_COMMAND，默认值为"/joint_torque_controller/command_joint_torque"，这是发送给关节扭矩命令的话题 -->
+
+  <arg name="TOPIC_WRENCH_STATE" default="/wrench_fake"/>
+  <!-- 定义参数TOPIC_WRENCH_STATE，默认值为"/wrench_fake"，这是假设的外力/力矩状态的话题 -->
 
   <param name="topic_arm_state" value="$(arg TOPIC_ARM_STATE)"/>
-  <param name="topic_arm_command" value="$(arg TOPIC_ARM_COMMAND)"/>
-  <param name="topic_wrench_state" value="$(arg TOPIC_WRENCH_STATE)"/>
+  <!-- 使用前面定义的TOPIC_ARM_STATE参数设置ROS参数"topic_arm_state" -->
 
+  <param name="topic_arm_command" value="$(arg TOPIC_ARM_COMMAND)"/>
+  <!-- 使用前面定义的TOPIC_ARM_COMMAND参数设置ROS参数"topic_arm_command" -->
+
+  <param name="topic_wrench_state" value="$(arg TOPIC_WRENCH_STATE)"/>
+  <!-- 使用前面定义的TOPIC_WRENCH_STATE参数设置ROS参数"topic_wrench_state" -->
 
   <rosparam file="$(find impedance)/config/ImpedanceParams.yaml" command="load"/>
+  <!-- 从"impedance"包的"config/ImpedanceParams.yaml"文件中加载阻抗控制器的配置参数 -->
 
   <node pkg="impedance" name="impedance" type="impedance_node" output="screen"/>
+  <!-- 启动名为"impedance"的节点，节点类型是"impedance_node"，属于"impedance"包，节点的输出显示在屏幕上 -->
+
 </launch>

@@ -119,48 +119,160 @@ void Impedance::state_wrench_callback(
     wrench_z = msg->force.z;
 }
 
+// void Impedance::compute_impedance(bool flag)
+// {
+//     if(flag)
+//     {
+//         //! Method: 1
+//         if (Init_Flag_)
+//         {
+//             Jnt_Pos_Init_State = Jnt_Pos_State;
+//             Init_Flag_ = false;
+//         }
+
+//         if (wrench_z != 0)
+//         {
+//             KDL::Frame End_Pose;
+//             fk_pos_solver_->JntToCart(Jnt_Pos_State,End_Pose);
+
+//             KDL::JntArrayVel Jnt_Vel;
+//             KDL::FrameVel End_Pose_Vel;
+//             Jnt_Vel = KDL::JntArrayVel(Jnt_Pos_State, Jnt_Vel_State);
+//             fk_vel_solver_->JntToCart(Jnt_Vel, End_Pose_Vel);
+
+//             KDL::Vector pose_p, pose_vel_p;
+//             pose_p = End_Pose.p;
+//             pose_vel_p = End_Pose_Vel.p.p;
+
+//             // double acc_x = (wrench_x - (Impedance_D[0]*pose_vel_p(0) + Impedance_K[0]*(pose_p(0)-desired_pose_[0])))/Impedance_M[0];
+//             // double acc_y = (wrench_y - (Impedance_D[1]*pose_vel_p(1) + Impedance_K[1]*(pose_p(1)-desired_pose_[1])))/Impedance_M[1];
+//             double acc_z = (wrench_z - (Impedance_D[2]*pose_vel_p(2) + Impedance_K[2]*(desired_pose_[2]-pose_p(2))))/Impedance_M[2];
+
+//             ros::Rate loop_rate_(200);
+//             ros::Duration duration = loop_rate_.expectedCycleTime();
+//             // pos_x = pos_x + 0.01*(pose_vel_p(0) * duration.toSec() + 0.5 * acc_x * duration.toSec() * duration.toSec());
+//             // pos_y = pos_y + 0.01*(pose_vel_p(1) * duration.toSec() + 0.5 * acc_y * duration.toSec() * duration.toSec());
+//             pos_z = 10*(pose_vel_p(2) * duration.toSec() + 0.5 * acc_z * duration.toSec() * duration.toSec());
+//             Desired_Pos_ = KDL::Vector(desired_pose_[0]+pos_x, desired_pose_[1]+pos_y, desired_pose_[2]+pos_z);
+//             Desired_Ori_ = KDL::Rotation::Quaternion(desired_pose_[3], desired_pose_[4], desired_pose_[5],desired_pose_[6]);
+//             Desired_Pose_ = KDL::Frame(Desired_Ori_, Desired_Pos_);
+//         }
+
+//         ik_pos_solver_->CartToJnt(Jnt_Pos_State, Desired_Pose_, CMD_State);
+
+//         // reaching desired joint position using a hyperbolic tangent function
+//         double lambda = 0.1;
+//         double th = tanh(M_PI - lambda*Step_);
+//         double ch = cosh(M_PI - lambda*Step_);
+//         double sh2 = 1.0/(ch*ch);
+
+//         for(size_t i = 0; i < this->kdl_chain_.getNrOfJoints(); i++)
+//         {
+//             //take into account also initial/final velocity and acceleration
+//             Current_State(i) = CMD_State(i) - Jnt_Pos_Init_State(i);
+//             Jnt_Desired_State.q(i) = Current_State(i)*0.5*(1.0-th) + Jnt_Pos_Init_State(i);
+//             Jnt_Desired_State.qdot(i) = Current_State(i)*0.5*lambda*sh2;
+//             Jnt_Desired_State.qdotdot(i) = Current_State(i)*lambda*lambda*sh2*th;
+//         }
+//         // std::cout<<Current_State(0)<<","<<Current_State(1)<<","<<Current_State(2)<<","
+//         // <<Current_State(3)<<","<<Current_State(4)<<","<<Current_State(5)<<std::endl;
+//         ++Step_;
+//         if(Jnt_Desired_State.q == CMD_State)
+//         {
+//             Cmd_Flag_ = false;	//reset command flag
+//             Step_ = 0;
+//             Jnt_Pos_Init_State = Jnt_Pos_State;
+//             // ROS_INFO("Posture OK");
+//         }
+
+//     	// computing Inertia, Coriolis and Gravity matrices
+//         id_solver_->JntToMass(Jnt_Pos_State, M_);
+//         id_solver_->JntToCoriolis(Jnt_Pos_State, Jnt_Vel_State, C_);
+//         id_solver_->JntToGravity(Jnt_Pos_State, G_);
+
+//         // PID controller
+//         KDL::JntArray pid_cmd_(this->kdl_chain_.getNrOfJoints());
+//         // compensation of Coriolis and Gravity
+//         KDL::JntArray cg_cmd_(this->kdl_chain_.getNrOfJoints());
+
+//         for(size_t i=0; i<this->kdl_chain_.getNrOfJoints(); i++)
+//         {
+//             // control law
+//             pid_cmd_(i) = Ka_(i)*Jnt_Desired_State.qdotdot(i) + Kv_(i)*(Jnt_Desired_State.qdot(i) - Jnt_Vel_State(i)) + Kp_(i)*(Jnt_Desired_State.q(i) - Jnt_Pos_State(i));
+//             cg_cmd_(i) = C_(i) + G_(i);
+//             // cg_cmd_(i) = C_(i)*Jnt_Desired_State.qdot(i) + G_(i);
+
+//             // Jnt_Toq_Cmd_(i) = M_(i)*Jnt_Desired_State.qdotdot(i)+C_(i)*Jnt_Desired_State.qdot(i)+G_(i);
+//         }
+//         Jnt_Toq_Cmd_.data = M_.data * pid_cmd_.data;
+//         KDL::Add(Jnt_Toq_Cmd_,cg_cmd_,Jnt_Toq_Cmd_);
+
+
+//         //! Method: 2 for Test
+//         // if(id_pos_solver_->CartToJnt(Jnt_Pos_State, Jnt_Vel_State, Jnt_Acc_Cmd_, Ext_Wrenches, Jnt_Toq_Cmd_)!=0)
+//         // {
+//         //     ROS_ERROR("Could not compute joint torques! Setting all torques to zero!");
+//         //     KDL::SetToZero(Jnt_Toq_Cmd_);
+//         // }
+
+//         send_commands_to_robot();
+
+//         Recieved_Joint_State = false;
+//     }
+// }
 void Impedance::compute_impedance(bool flag)
 {
+    // 如果flag为真，执行以下计算
     if(flag)
     {
-        //! Method: 1
+        // 方法1
         if (Init_Flag_)
         {
+            // 如果是初始状态，则将当前关节位置作为初始位置
             Jnt_Pos_Init_State = Jnt_Pos_State;
+            // 将初始标志置为假，表示已经初始化
             Init_Flag_ = false;
         }
 
+        // 如果Z轴的外力不为0
         if (wrench_z != 0)
         {
             KDL::Frame End_Pose;
+            // 计算当前关节状态对应的末端位姿
             fk_pos_solver_->JntToCart(Jnt_Pos_State,End_Pose);
 
             KDL::JntArrayVel Jnt_Vel;
             KDL::FrameVel End_Pose_Vel;
+            // 将当前关节位置和速度状态设置为关节速度数组
             Jnt_Vel = KDL::JntArrayVel(Jnt_Pos_State, Jnt_Vel_State);
+            // 计算当前关节速度状态对应的末端速度
             fk_vel_solver_->JntToCart(Jnt_Vel, End_Pose_Vel);
 
             KDL::Vector pose_p, pose_vel_p;
+            // 获取末端位姿的位置
             pose_p = End_Pose.p;
+            // 获取末端速度的位置分量
             pose_vel_p = End_Pose_Vel.p.p;
 
-            // double acc_x = (wrench_x - (Impedance_D[0]*pose_vel_p(0) + Impedance_K[0]*(pose_p(0)-desired_pose_[0])))/Impedance_M[0];
-            // double acc_y = (wrench_y - (Impedance_D[1]*pose_vel_p(1) + Impedance_K[1]*(pose_p(1)-desired_pose_[1])))/Impedance_M[1];
+            // 计算Z轴的加速度，考虑了质量、阻尼和弹性系数
             double acc_z = (wrench_z - (Impedance_D[2]*pose_vel_p(2) + Impedance_K[2]*(desired_pose_[2]-pose_p(2))))/Impedance_M[2];
 
             ros::Rate loop_rate_(200);
             ros::Duration duration = loop_rate_.expectedCycleTime();
-            // pos_x = pos_x + 0.01*(pose_vel_p(0) * duration.toSec() + 0.5 * acc_x * duration.toSec() * duration.toSec());
-            // pos_y = pos_y + 0.01*(pose_vel_p(1) * duration.toSec() + 0.5 * acc_y * duration.toSec() * duration.toSec());
+            // 根据加速度和速度更新Z轴的位置
             pos_z = 10*(pose_vel_p(2) * duration.toSec() + 0.5 * acc_z * duration.toSec() * duration.toSec());
+            // 设置期望位置
             Desired_Pos_ = KDL::Vector(desired_pose_[0]+pos_x, desired_pose_[1]+pos_y, desired_pose_[2]+pos_z);
+            // 设置期望姿态
             Desired_Ori_ = KDL::Rotation::Quaternion(desired_pose_[3], desired_pose_[4], desired_pose_[5],desired_pose_[6]);
+            // 组合期望的位置和姿态为期望的位姿
             Desired_Pose_ = KDL::Frame(Desired_Ori_, Desired_Pos_);
         }
 
+        // 使用逆运动学求解器计算达到期望位姿的关节命令
         ik_pos_solver_->CartToJnt(Jnt_Pos_State, Desired_Pose_, CMD_State);
 
-        // reaching desired joint position using a hyperbolic tangent function
+        // 使用双曲正切函数平滑达到期望的关节位置
         double lambda = 0.1;
         double th = tanh(M_PI - lambda*Step_);
         double ch = cosh(M_PI - lambda*Step_);
@@ -168,58 +280,60 @@ void Impedance::compute_impedance(bool flag)
 
         for(size_t i = 0; i < this->kdl_chain_.getNrOfJoints(); i++)
         {
-            //take into account also initial/final velocity and acceleration
+            // 计算当前的关节状态
             Current_State(i) = CMD_State(i) - Jnt_Pos_Init_State(i);
+            // 计算期望的关节位置
             Jnt_Desired_State.q(i) = Current_State(i)*0.5*(1.0-th) + Jnt_Pos_Init_State(i);
+            // 计算期望的关节速度
             Jnt_Desired_State.qdot(i) = Current_State(i)*0.5*lambda*sh2;
+            // 计算期望的关节加速度
             Jnt_Desired_State.qdotdot(i) = Current_State(i)*lambda*lambda*sh2*th;
         }
-        // std::cout<<Current_State(0)<<","<<Current_State(1)<<","<<Current_State(2)<<","
-        // <<Current_State(3)<<","<<Current_State(4)<<","<<Current_State(5)<<std::endl;
+        // 如果达到命令的状态，则重置命令标志，准备下一次命令
         ++Step_;
         if(Jnt_Desired_State.q == CMD_State)
         {
-            Cmd_Flag_ = false;	//reset command flag
-            Step_ = 0;
-            Jnt_Pos_Init_State = Jnt_Pos_State;
-            // ROS_INFO("Posture OK");
+            Cmd_Flag_ = false;  // 重置命令标志
+            Step_ = 0;  // 重置步骤
+            Jnt_Pos_Init_State = Jnt_Pos_State;  // 更新初始状态
+            // 输出姿态OK的信息
         }
 
-    	// computing Inertia, Coriolis and Gravity matrices
+        // 计算惯性矩阵、科氏力矩阵和重力矩阵
         id_solver_->JntToMass(Jnt_Pos_State, M_);
         id_solver_->JntToCoriolis(Jnt_Pos_State, Jnt_Vel_State, C_);
         id_solver_->JntToGravity(Jnt_Pos_State, G_);
 
-        // PID controller
+        // PID控制器
         KDL::JntArray pid_cmd_(this->kdl_chain_.getNrOfJoints());
-        // compensation of Coriolis and Gravity
+        // 补偿科氏力和重力
         KDL::JntArray cg_cmd_(this->kdl_chain_.getNrOfJoints());
 
         for(size_t i=0; i<this->kdl_chain_.getNrOfJoints(); i++)
         {
-            // control law
+            // 控制律
             pid_cmd_(i) = Ka_(i)*Jnt_Desired_State.qdotdot(i) + Kv_(i)*(Jnt_Desired_State.qdot(i) - Jnt_Vel_State(i)) + Kp_(i)*(Jnt_Desired_State.q(i) - Jnt_Pos_State(i));
             cg_cmd_(i) = C_(i) + G_(i);
-            // cg_cmd_(i) = C_(i)*Jnt_Desired_State.qdot(i) + G_(i);
-
-            // Jnt_Toq_Cmd_(i) = M_(i)*Jnt_Desired_State.qdotdot(i)+C_(i)*Jnt_Desired_State.qdot(i)+G_(i);
+            // 计算关节扭矩命令
         }
         Jnt_Toq_Cmd_.data = M_.data * pid_cmd_.data;
         KDL::Add(Jnt_Toq_Cmd_,cg_cmd_,Jnt_Toq_Cmd_);
 
-
-        //! Method: 2 for Test
+        // 方法2，用于测试
+        // 如果逆动力学求解器失败，则将所有扭矩设置为零
         // if(id_pos_solver_->CartToJnt(Jnt_Pos_State, Jnt_Vel_State, Jnt_Acc_Cmd_, Ext_Wrenches, Jnt_Toq_Cmd_)!=0)
         // {
         //     ROS_ERROR("Could not compute joint torques! Setting all torques to zero!");
         //     KDL::SetToZero(Jnt_Toq_Cmd_);
         // }
-
+        // 发送命令到机器人
         send_commands_to_robot();
 
+        // 重置接收到的关节状态标志
         Recieved_Joint_State = false;
     }
 }
+
 
 void Impedance::command(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
