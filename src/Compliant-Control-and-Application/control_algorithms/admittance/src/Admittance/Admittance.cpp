@@ -93,7 +93,7 @@ void Admittance::run() {
   }
 }
 
-//!-                顺应性动态计算                      -!//
+//!-                导纳控制动态计算                      -!//
 void Admittance::compute_admittance() {
   // 计算位置误差
   error.topRows(3) = arm_position_ - desired_pose_position_;
@@ -116,9 +116,9 @@ void Admittance::compute_admittance() {
   // 计算平移误差相对于期望平衡位置
   Vector6d coupling_wrench_arm;
 
-  // 计算顺应性控制的力矩
+  // 计算导纳控制的力矩
   coupling_wrench_arm=  D_ * (arm_desired_twist_adm_) + K_*error;
-  // 根据外部力矩和顺应性动态计算期望加速度
+  // 根据外部力矩计算期望加速度
   arm_desired_accelaration = M_.inverse() * ( - coupling_wrench_arm  + wrench_external_);
 
   // 计算加速度的模长
