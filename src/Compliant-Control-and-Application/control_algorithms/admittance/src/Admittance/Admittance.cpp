@@ -93,6 +93,7 @@ void Admittance::run() {
   }
 }
 
+//!-                导纳控制动态计算                      -!//
 void Admittance::compute_admittance() {
   error.topRows(3) = arm_position_ - desired_pose_position_;
   if(desired_pose_orientation_.coeffs().dot(arm_orientation_.coeffs()) < 0.0)
@@ -107,7 +108,10 @@ void Admittance::compute_admittance() {
   Eigen::AngleAxisd err_arm_des_orient(quat_rot_err);
   error.bottomRows(3) << err_arm_des_orient.axis() * err_arm_des_orient.angle();
   Vector6d coupling_wrench_arm;
+
+  // 计算导纳控制的力矩
   coupling_wrench_arm=  D_ * (arm_desired_twist_adm_) + K_*error;
+  // 根据外部力矩计算期望加速度
   arm_desired_accelaration = M_.inverse() * ( - coupling_wrench_arm  + wrench_external_);
   double a_acc_norm = (arm_desired_accelaration.segment(0, 3)).norm();
   if (a_acc_norm > arm_max_acc_) {
