@@ -93,44 +93,28 @@ void Admittance::run() {
   }
 }
 
-//!-                顺应性动态计算                      -!//
 void Admittance::compute_admittance() {
-  // 计算位置误差
   error.topRows(3) = arm_position_ - desired_pose_position_;
-  // 如果期望方向和实际方向的点积小于0，反转四元数方向
   if(desired_pose_orientation_.coeffs().dot(arm_orientation_.coeffs()) < 0.0)
   {
     arm_orientation_.coeffs() << -arm_orientation_.coeffs();
   }
-  // 计算方向误差并规范化四元数
   Eigen::Quaterniond quat_rot_err (arm_orientation_ * desired_pose_orientation_.inverse());
   if(quat_rot_err.coeffs().norm() > 1e-3)
   {
     quat_rot_err.coeffs() << quat_rot_err.coeffs()/quat_rot_err.coeffs().norm();
   }
-  // 将四元数方向误差转换为角轴形式
   Eigen::AngleAxisd err_arm_des_orient(quat_rot_err);
-  // 计算角度误差并存储在误差向量的底部三行
   error.bottomRows(3) << err_arm_des_orient.axis() * err_arm_des_orient.angle();
-
-  // 计算平移误差相对于期望平衡位置
   Vector6d coupling_wrench_arm;
-
-  // 计算顺应性控制的力矩
   coupling_wrench_arm=  D_ * (arm_desired_twist_adm_) + K_*error;
-  // 根据外部力矩和顺应性动态计算期望加速度
   arm_desired_accelaration = M_.inverse() * ( - coupling_wrench_arm  + wrench_external_);
-
-  // 计算加速度的模长
   double a_acc_norm = (arm_desired_accelaration.segment(0, 3)).norm();
-
-  // 如果加速度模长大于最大加速度，则进行限制
   if (a_acc_norm > arm_max_acc_) {
     ROS_WARN_STREAM_THROTTLE(1, "Admittance generates high arm acceleration!"
                              << " norm: " << a_acc_norm);
     arm_desired_accelaration.segment(0, 3) *= (arm_max_acc_ / a_acc_norm);
   }
-  // 积分计算期望速度，用于速度接口
   ros::Duration duration = loop_rate_.expectedCycleTime();
   arm_desired_twist_adm_ += arm_desired_accelaration * duration.toSec();
 }
